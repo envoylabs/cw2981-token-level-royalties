@@ -6,6 +6,9 @@ pub enum ContractError {
     #[error("{0}")]
     Std(#[from] StdError),
 
+    #[error("No royalties set for token_id")]
+    NoRoyaltiesSet {},
+
     #[error("Unauthorized")]
     Unauthorized {},
 

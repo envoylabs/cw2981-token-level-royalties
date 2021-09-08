@@ -23,6 +23,7 @@ use cw721_base::state::{
 
 use crate::msg::{CheckRoyaltiesResponse, ExecuteMsg, MintMsg, QueryMsg, RoyaltiesInfoResponse};
 use crate::state::{RoyaltiesInfo, CONTRACT_INFO, ROYALTIES_INFO};
+
 use cw_storage_plus::Bound;
 
 use percentage::Percentage;
@@ -193,6 +194,14 @@ pub fn query_royalties_info(
     sale_price: Coin,
 ) -> StdResult<RoyaltiesInfoResponse> {
     let royalties_info = ROYALTIES_INFO.may_load(deps.storage, &token_id)?.unwrap();
+
+    // if not configured, throw straight away
+    if royalties_info.royalty_payments != true {
+        return Err(StdError::NotFound {
+            kind: String::from("Royalties not found for this token_id"),
+        });
+    }
+
     let royalty_percentage = match royalties_info.royalty_percentage {
         Some(pct) => Percentage::from(pct),
         None => Percentage::from(0),
@@ -989,17 +998,17 @@ mod tests {
         execute(deps.as_mut(), mock_env(), minter.clone(), mint_msg).unwrap();
 
         // sense check a hypothetical sale
+        // NotFound should be thrown as royalties are not configured
         let queried_royalties_info = query_royalties_info(
             deps.as_ref(),
             token_id1.clone(),
             coin(Uint128::new(1_000_000).u128(), "ujuno"),
         )
-        .unwrap();
+        .unwrap_err();
         assert_eq!(
             queried_royalties_info,
-            RoyaltiesInfoResponse {
-                address: String::from(""),
-                royalty_amount: coin(Uint128::new(0).u128(), "ujuno")
+            StdError::NotFound {
+                kind: String::from("Royalties not found for this token_id"),
             }
         );
 
