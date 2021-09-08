@@ -99,11 +99,13 @@ pub fn execute_mint(
     }
 
     // a little sense check for somebody attempting something strange
-    if msg.royalty_payments == true
+    if msg.royalty_payments
         && (msg.royalty_percentage.is_none() || msg.royalty_payment_address.is_none())
     {
         return Err(cw721_base::ContractError::Std(StdError::GenericErr {
-            msg: String::from("royalty_percentage and royalty_payment_address required"),
+            msg: String::from(
+                "Argument error: royalty_percentage and royalty_payment_address required",
+            ),
         }));
     }
 
@@ -477,7 +479,9 @@ mod tests {
         assert_eq!(
             err_res,
             cw721_base::ContractError::Std(StdError::GenericErr {
-                msg: String::from("royalty_percentage and royalty_payment_address required"),
+                msg: String::from(
+                    "Argument error: royalty_percentage and royalty_payment_address required"
+                ),
             })
         );
     }
