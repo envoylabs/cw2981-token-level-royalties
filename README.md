@@ -13,7 +13,7 @@ Exposes two new query message types:
 RoyaltyInfo {
     token_id: String,
     // the denom of this sale must also be the denom returned by RoyaltiesInfoResponse
-    sale_price: Coin,
+    sale_price: u128,
 },
 
 // Called against the token_id and contract to determine if this NFT
