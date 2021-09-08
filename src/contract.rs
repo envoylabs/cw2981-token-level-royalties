@@ -205,7 +205,7 @@ pub fn query_royalties_info(
     let royalties_info = ROYALTIES_INFO.may_load(deps.storage, &token_id)?.unwrap();
 
     // if not configured, throw straight away
-    if royalties_info.royalty_payments != true {
+    if !royalties_info.royalty_payments {
         return Err(StdError::NotFound {
             kind: String::from("Royalties not found for this token_id"),
         });
