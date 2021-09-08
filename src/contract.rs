@@ -98,6 +98,15 @@ pub fn execute_mint(
         return Err(cw721_base::ContractError::Unauthorized {});
     }
 
+    // a little sense check for somebody attempting something strange
+    if msg.royalty_payments == true
+        && (msg.royalty_percentage.is_none() || msg.royalty_payment_address.is_none())
+    {
+        return Err(cw721_base::ContractError::Std(StdError::GenericErr {
+            msg: String::from("royalty_percentage and royalty_payment_address required"),
+        }));
+    }
+
     // create the token
     let token = TokenInfo {
         owner: deps.api.addr_validate(&msg.owner)?,
@@ -434,6 +443,43 @@ mod tests {
         // list the token_ids
         let tokens = query_all_tokens(deps.as_ref(), None, None).unwrap();
         assert_eq!(0, tokens.tokens.len());
+    }
+
+    #[test]
+    fn minting_with_invalid_royalty_params_errors() {
+        let mut deps = mock_dependencies(&[]);
+        setup_contract(deps.as_mut());
+
+        let token_id = "petrify".to_string();
+        let name = "Petrify with Gaze".to_string();
+        let description = "Allows the owner to petrify anyone looking at him or her".to_string();
+
+        let mint_msg = ExecuteMsg::Mint(MintMsg {
+            token_id: token_id.clone(),
+            owner: String::from("medusa"),
+            name: name.clone(),
+            description: Some(description.clone()),
+            image: None,
+            royalty_payments: true,
+            royalty_percentage: None,
+            royalty_payment_address: Some(String::from(MINTER)),
+        });
+
+        // random cannot mint
+        let random = mock_info("random", &[]);
+        let err = execute(deps.as_mut(), mock_env(), random, mint_msg.clone()).unwrap_err();
+        assert_eq!(ContractError::from(err), ContractError::Unauthorized {});
+
+        // minter can mint
+        let allowed = mock_info(MINTER, &[]);
+        let err_res = execute(deps.as_mut(), mock_env(), allowed, mint_msg).unwrap_err();
+
+        assert_eq!(
+            err_res,
+            cw721_base::ContractError::Std(StdError::GenericErr {
+                msg: String::from("royalty_percentage and royalty_payment_address required"),
+            })
+        );
     }
 
     #[test]
