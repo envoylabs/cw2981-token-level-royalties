@@ -150,7 +150,7 @@ pub fn query(deps: Deps, env: Env, msg: QueryMsg) -> StdResult<Binary> {
             token_id,
             sale_price,
         } => to_binary(&query_royalties_info(deps, token_id, sale_price)?),
-        QueryMsg::CheckRoyalties { token_id } => to_binary(&check_royalties(deps, token_id)?),
+        QueryMsg::CheckRoyalties {} => to_binary(&check_royalties()?),
         QueryMsg::Minter {} => to_binary(&query_minter(deps)?),
         QueryMsg::ContractInfo {} => to_binary(&query_contract_info(deps)?),
         QueryMsg::NftInfo { token_id } => to_binary(&query_nft_info(deps, token_id)?),
@@ -229,10 +229,10 @@ pub fn query_royalties_info(
     })
 }
 
-pub fn check_royalties(deps: Deps, token_id: String) -> StdResult<CheckRoyaltiesResponse> {
-    let royalties_info = ROYALTIES_INFO.may_load(deps.storage, &token_id)?.unwrap();
+// This contract implements CW-2981 so we return true
+pub fn check_royalties() -> StdResult<CheckRoyaltiesResponse> {
     Ok(CheckRoyaltiesResponse {
-        royalty_payments: royalties_info.royalty_payments,
+        royalty_payments: true,
     })
 }
 

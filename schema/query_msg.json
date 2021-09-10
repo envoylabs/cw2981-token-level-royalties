@@ -35,15 +35,7 @@
       ],
       "properties": {
         "check_royalties": {
-          "type": "object",
-          "required": [
-            "token_id"
-          ],
-          "properties": {
-            "token_id": {
-              "type": "string"
-            }
-          }
+          "type": "object"
         }
       },
       "additionalProperties": false

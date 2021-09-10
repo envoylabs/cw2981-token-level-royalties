@@ -1,8 +1,8 @@
 ![Build and Test](https://github.com/envoylabs/cw2981-token-level-royalties/actions/workflows/build_and_test.yml/badge.svg)
 
-# CW2981 Token-level Royalties
+# CW-2981 Token-level Royalties
 
-An example of porting EIP2981 to implement royalties at a per-contract level.
+An example of porting EIP-2981 to implement royalties at a token mint level.
 
 Exposes two new query message types:
 
@@ -16,11 +16,6 @@ RoyaltyInfo {
     sale_price: u128,
 },
 
-// Called against the token_id and contract to determine if this NFT
-// implements royalties
-CheckRoyalties {
-    token_id: String,
-},
+// Called against the contract to signal that CW-2981 is implemented
+CheckRoyalties {},
 ```
-
-Note that unlike the contract-wide example, `CheckRoyalties` takes an argument, in this case, the `token_id` of the NFT. It will return a boolean to indicate if that NFT was minted with royalty metadata attached.
